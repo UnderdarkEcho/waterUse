@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
+const isGhPages = process.env.GITHUB_PAGES === "true";
+const basePath = isGhPages ? "/waterUse" : "";
+
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: "export",
+  trailingSlash: true,
+  basePath,
+  assetPrefix: basePath,
+  images: {
+    unoptimized: true,
+  },
 };
 
 export default nextConfig;
