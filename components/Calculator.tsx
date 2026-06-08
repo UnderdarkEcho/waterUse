@@ -17,7 +17,7 @@ import { captureShareCard, downloadShareImage } from "@/lib/export-image";
 import { getImpactLevel } from "@/lib/impact";
 import { useTheme } from "./ThemeProvider";
 import { Copy, Download, Droplets } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 interface CalculatorProps {
   activityId: string;
@@ -40,6 +40,7 @@ export function Calculator({
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [pulse, setPulse] = useState(false);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const activity = getActivity(activityId) ?? activities[0];
   const definition = getActivityDefinition(activityId);
@@ -55,8 +56,12 @@ export function Calculator({
   const unitLabel = quantity === 1 ? activity.unit : activity.unitPlural;
 
   function handleCalculate() {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
     setPulse(true);
     setTimeout(() => setPulse(false), 800);
+    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
   async function handleCopy() {
@@ -87,10 +92,10 @@ export function Calculator({
   }
 
   return (
-    <section className="max-w-5xl mx-auto px-4">
-      <div className="rounded-2xl border border-border bg-white dark:bg-slate-800 shadow-sm p-6 sm:p-8">
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="space-y-5">
+    <section className="max-w-5xl mx-auto px-4 w-full">
+      <div className="rounded-2xl border border-border bg-white dark:bg-slate-800 shadow-sm p-4 sm:p-6 md:p-8">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+          <div className="space-y-5 min-w-0">
             <ActivitySelect value={activityId} onChange={onActivityChange} />
 
             {definition && (
@@ -104,7 +109,7 @@ export function Calculator({
               >
                 Quantity / Duration
               </label>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <input
                   id="quantity"
                   type="number"
@@ -114,9 +119,9 @@ export function Calculator({
                   onChange={(e) =>
                     onQuantityChange(Math.max(0, parseFloat(e.target.value) || 0))
                   }
-                  className="flex-1 px-4 py-3 rounded-xl border border-border bg-background text-lg font-medium outline-none focus:border-primary transition-colors min-h-[52px]"
+                  className="flex-1 min-w-0 px-3 sm:px-4 py-3 rounded-xl border border-border bg-background text-lg font-medium outline-none focus:border-primary transition-colors min-h-[52px]"
                 />
-                <span className="text-neutral font-medium min-w-[60px]">
+                <span className="text-neutral font-medium shrink-0 text-sm sm:text-base">
                   {unitLabel}
                 </span>
               </div>
@@ -148,29 +153,32 @@ export function Calculator({
             </div>
           </div>
 
-          <div className="flex flex-col items-center justify-center text-center space-y-4">
+          <div
+            ref={resultsRef}
+            className="flex flex-col items-center justify-center text-center space-y-4 min-w-0 w-full pt-2 md:pt-0 border-t border-border md:border-t-0"
+          >
             <p className="text-neutral text-sm uppercase tracking-wider">
               You used
             </p>
             <p
-              className={`text-5xl sm:text-6xl font-bold text-primary transition-transform ${pulse ? "scale-105" : ""}`}
+              className={`text-4xl sm:text-5xl md:text-6xl font-bold text-primary tabular-nums transition-transform break-words max-w-full ${pulse ? "scale-105" : ""}`}
             >
               {formatMl(result.totalMl)}{" "}
-              <span className="text-2xl sm:text-3xl">ml</span>
+              <span className="text-xl sm:text-2xl md:text-3xl">ml</span>
             </p>
-            <p className="text-neutral text-sm">
+            <p className="text-neutral text-xs sm:text-sm px-2">
               ({formatLiters(result.totalMl)} liters / {formatGallons(result.totalMl)}{" "}
               gallons)
             </p>
 
             <WaterDrop ml={result.totalMl} animate={pulse && impact === "low"} />
 
-            <p className="text-sm sm:text-base text-neutral max-w-xs">
+            <p className="text-sm sm:text-base text-neutral max-w-xs px-2 leading-relaxed">
               That&apos;s roughly the same as{" "}
               <span className="font-medium text-foreground">{comparison}</span>
             </p>
 
-            <div className="flex gap-3 pt-2">
+            <div className="flex flex-wrap justify-center gap-3 pt-2 w-full">
               <button
                 type="button"
                 onClick={handleCopy}

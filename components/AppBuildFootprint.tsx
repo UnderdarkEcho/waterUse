@@ -16,7 +16,7 @@ export function AppBuildFootprint() {
       <div className="rounded-2xl border border-accent/30 bg-accent/5 px-5 py-4 sm:px-6 sm:py-5">
         <div className="flex items-start gap-3">
           <Code2 className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-          <div className="flex-1 space-y-2">
+          <div className="flex-1 min-w-0 space-y-2">
             <p className="text-sm sm:text-base leading-relaxed text-foreground">
               <strong className="font-semibold">This application</strong> used
               an estimated{" "}

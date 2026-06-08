@@ -34,7 +34,7 @@ export const ShareExportCard = forwardRef<HTMLDivElement, ShareExportCardProps>(
         ref={ref}
         style={{
           position: "fixed",
-          left: 0,
+          left: -10000,
           top: 0,
           width: 600,
           padding: 32,

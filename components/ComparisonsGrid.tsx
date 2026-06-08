@@ -31,9 +31,9 @@ export function ComparisonsGrid({
   const maxMl = Math.max(...items.map((i) => i.ml));
 
   return (
-    <section className="max-w-5xl mx-auto px-4 py-10">
+    <section className="max-w-5xl mx-auto px-4 py-10 w-full min-w-0">
       <h2 className="text-xl font-bold mb-4">Activity Comparisons</h2>
-      <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory md:grid md:grid-cols-3 lg:grid-cols-4 md:overflow-visible">
+      <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-3 lg:grid-cols-4 md:overflow-visible">
         {items.map(({ activity, ml, qty }) => {
           const level = getImpactLevel(ml);
           const isSelected = activity.id === selectedId;

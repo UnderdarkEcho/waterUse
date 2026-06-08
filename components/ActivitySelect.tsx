@@ -23,29 +23,38 @@ export function ActivitySelect({ value, onChange }: ActivitySelectProps) {
   );
 
   useEffect(() => {
+    if (!open) return;
+
     function handleClick(e: MouseEvent) {
       if (!containerRef.current?.contains(e.target as Node)) {
         setOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
+
+    const timer = setTimeout(() => {
+      document.addEventListener("click", handleClick);
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("click", handleClick);
+    };
+  }, [open]);
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className="relative min-w-0">
       <label className="block text-sm font-medium text-neutral mb-2">
         Activity
       </label>
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-border bg-background text-left hover:border-primary/50 transition-colors min-h-[52px]"
+        className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 rounded-xl border border-border bg-background text-left hover:border-primary/50 transition-colors min-h-[52px] min-w-0"
       >
         {selected && (
           <ActivityIcon name={selected.icon} className="w-5 h-5 text-primary shrink-0" />
         )}
-        <span className="flex-1 font-medium truncate">
+        <span className="flex-1 min-w-0 font-medium truncate">
           {selected?.name ?? "Select an activity"}
         </span>
         <ChevronDown
@@ -60,7 +69,7 @@ export function ActivitySelect({ value, onChange }: ActivitySelectProps) {
       )}
 
       {open && (
-        <div className="absolute z-20 mt-2 w-full rounded-xl border border-border bg-background shadow-lg overflow-hidden">
+        <div className="absolute z-30 mt-2 left-0 right-0 max-w-full rounded-xl border border-border bg-background shadow-lg overflow-hidden">
           <div className="flex items-center gap-2 px-3 py-2 border-b border-border">
             <Search className="w-4 h-4 text-neutral shrink-0" />
             <input
@@ -68,8 +77,7 @@ export function ActivitySelect({ value, onChange }: ActivitySelectProps) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search activities..."
-              className="w-full bg-transparent outline-none text-sm py-1"
-              autoFocus
+              className="w-full min-w-0 bg-transparent outline-none text-sm py-1"
             />
           </div>
           <ul className="max-h-64 overflow-y-auto">
@@ -82,7 +90,7 @@ export function ActivitySelect({ value, onChange }: ActivitySelectProps) {
                     setOpen(false);
                     setQuery("");
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-primary/5 transition-colors ${
+                  className={`w-full flex items-center gap-3 px-3 sm:px-4 py-3 text-left hover:bg-primary/5 transition-colors min-w-0 ${
                     activity.id === value ? "bg-primary/10" : ""
                   }`}
                 >
@@ -90,9 +98,9 @@ export function ActivitySelect({ value, onChange }: ActivitySelectProps) {
                     name={activity.icon}
                     className="w-5 h-5 text-primary shrink-0"
                   />
-                  <div>
-                    <p className="font-medium text-sm">{activity.name}</p>
-                    <p className="text-xs text-neutral capitalize">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm truncate">{activity.name}</p>
+                    <p className="text-xs text-neutral capitalize truncate">
                       {activity.category}
                     </p>
                   </div>

@@ -273,8 +273,8 @@ export function EducationalAccordion({
       title: "Calculation options",
       content: (
         <div className="space-y-5">
-          <label className="flex items-center justify-between gap-4 cursor-pointer">
-            <div>
+          <label className="flex items-center justify-between gap-3 sm:gap-4 cursor-pointer min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="font-medium">Include indirect water</p>
               <p className="text-sm text-neutral">
                 Add power-plant water used to generate electricity (
@@ -298,8 +298,8 @@ export function EducationalAccordion({
             </button>
           </label>
 
-          <label className="flex items-center justify-between gap-4 cursor-pointer">
-            <div>
+          <label className="flex items-center justify-between gap-3 sm:gap-4 cursor-pointer min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="font-medium">AI vs traditional browsing</p>
               <p className="text-sm text-neutral">
                 Compare 10 AI queries to 1 hour of web browsing
@@ -365,8 +365,8 @@ export function EducationalAccordion({
   ];
 
   return (
-    <section className="max-w-5xl mx-auto px-4 py-6">
-      <div className="rounded-2xl border border-border bg-white dark:bg-slate-800 overflow-hidden">
+    <section className="max-w-5xl mx-auto px-4 py-6 w-full">
+      <div className="rounded-2xl border border-border bg-white dark:bg-slate-800 overflow-hidden min-w-0">
         {sections.map((section) => (
           <div
             key={section.id}
@@ -377,9 +377,9 @@ export function EducationalAccordion({
               onClick={() =>
                 setOpenSection(openSection === section.id ? null : section.id)
               }
-              className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-primary/5 transition-colors"
+              className="w-full flex items-center justify-between gap-3 px-4 sm:px-6 py-4 text-left hover:bg-primary/5 transition-colors min-w-0"
             >
-              <span className="font-semibold">{section.title}</span>
+              <span className="font-semibold text-left">{section.title}</span>
               <ChevronDown
                 className={`w-5 h-5 text-neutral transition-transform ${
                   openSection === section.id ? "rotate-180" : ""
@@ -387,7 +387,7 @@ export function EducationalAccordion({
               />
             </button>
             {openSection === section.id && (
-              <div className="px-6 pb-5">{section.content}</div>
+              <div className="px-4 sm:px-6 pb-5 min-w-0">{section.content}</div>
             )}
           </div>
         ))}

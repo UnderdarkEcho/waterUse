@@ -23,7 +23,7 @@ export function ActivityDefinitionCard({
         className="w-full flex items-start gap-2 px-4 py-3 text-left hover:bg-primary/5 transition-colors"
       >
         <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 overflow-hidden">
           <p className="text-sm font-medium text-foreground">
             {definition.title}
           </p>
@@ -44,11 +44,14 @@ export function ActivityDefinitionCard({
 
           <dl className="space-y-1.5">
             {definition.specs.map((spec) => (
-              <div key={spec.label} className="grid grid-cols-[9rem_1fr] gap-2">
-                <dt className="text-xs font-medium text-foreground">
+              <div
+                key={spec.label}
+                className="flex flex-col gap-0.5 sm:grid sm:grid-cols-[minmax(0,9rem)_1fr] sm:gap-2"
+              >
+                <dt className="text-xs font-medium text-foreground shrink-0">
                   {spec.label}
                 </dt>
-                <dd className="text-xs">{spec.value}</dd>
+                <dd className="text-xs break-words">{spec.value}</dd>
               </div>
             ))}
           </dl>

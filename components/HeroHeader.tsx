@@ -2,11 +2,11 @@ import { ThemeToggle } from "./ThemeToggle";
 
 export function HeroHeader() {
   return (
-    <header className="relative text-center pt-8 pb-6 px-4">
-      <div className="absolute top-4 right-4">
+    <header className="relative text-center pt-8 pb-6 px-4 sm:px-6">
+      <div className="absolute top-4 right-4 z-10">
         <ThemeToggle />
       </div>
-      <p className="text-sm text-neutral mb-3 tracking-wide">
+      <p className="text-sm text-neutral mb-3 tracking-wide px-10 sm:px-0">
         Real estimates • Updated 2026
       </p>
       <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-4">
