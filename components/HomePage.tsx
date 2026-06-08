@@ -24,6 +24,7 @@ export function HomePage() {
   const [quantity, setQuantity] = useState(activities[0].defaultQuantity);
   const [includeIndirect, setIncludeIndirect] = useState(true);
   const [showAiComparison, setShowAiComparison] = useState(true);
+  const [showBeefComparison, setShowBeefComparison] = useState(true);
 
   useEffect(() => {
     setSiteUrl(window.location.href.split("?")[0]);
@@ -82,6 +83,8 @@ export function HomePage() {
         onIncludeIndirectChange={setIncludeIndirect}
         showAiComparison={showAiComparison}
         onShowAiComparisonChange={setShowAiComparison}
+        showBeefComparison={showBeefComparison}
+        onShowBeefComparisonChange={setShowBeefComparison}
       />
       <AppBuildFootprint />
       <SiteFooter

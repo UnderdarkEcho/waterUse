@@ -191,7 +191,10 @@ export default function DataPage() {
             <strong className="text-foreground">Food &amp; drink</strong> use
             virtual water from crop and animal production (Water Footprint
             Network, Water Footprint Calculator) — water embedded in growing
-            ingredients, not the liquid in your cup or on your plate.
+            ingredients, not the liquid in your cup or on your plate. Beef
+            splits industrial (~15,400 L/kg, grain-finished feedlot) vs
+            free-range (~20,500 L/kg, pasture-heavy) per Mekonnen &amp;
+            Hoekstra.
           </p>
           <p>
             <strong className="text-foreground">Transport</strong> uses fuel

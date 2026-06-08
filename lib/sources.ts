@@ -122,9 +122,9 @@ export const sources: Source[] = [
   },
   {
     id: "wfn-animal",
-    label: "Water Footprint Network — Animal products (2006)",
+    label: "Water Footprint Network — Animal products (2010)",
     url: "https://www.waterfootprint.org/resources/Report38-WaterFootprintAnimalProducts.pdf",
-    note: "Beef ~15,400 L/kg; milk ~1,020 L/kg global averages",
+    note: "Mekonnen & Hoekstra — industrial beef ~15,400 L/kg; extensive pasture ~20,500 L/kg",
   },
   {
     id: "wfn-crops",

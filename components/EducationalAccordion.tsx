@@ -15,6 +15,8 @@ interface EducationalAccordionProps {
   onIncludeIndirectChange: (value: boolean) => void;
   showAiComparison: boolean;
   onShowAiComparisonChange: (value: boolean) => void;
+  showBeefComparison: boolean;
+  onShowBeefComparisonChange: (value: boolean) => void;
 }
 
 export function EducationalAccordion({
@@ -22,6 +24,8 @@ export function EducationalAccordion({
   onIncludeIndirectChange,
   showAiComparison,
   onShowAiComparisonChange,
+  showBeefComparison,
+  onShowBeefComparisonChange,
 }: EducationalAccordionProps) {
   const [openSection, setOpenSection] = useState<string | null>("worth-it");
 
@@ -37,6 +41,14 @@ export function EducationalAccordion({
       browse: browseResult.totalMl,
       lawn: lawnResult.totalMl,
     };
+  }, [includeIndirect]);
+
+  const beefComparison = useMemo(() => {
+    const industrial = activities.find((a) => a.id === "ribeye-industrial")!;
+    const freeRange = activities.find((a) => a.id === "ribeye-free-range")!;
+    const industrialMl = calculateWater(industrial, 1, { includeIndirect }).totalMl;
+    const freeRangeMl = calculateWater(freeRange, 1, { includeIndirect }).totalMl;
+    return { industrial: industrialMl, freeRange: freeRangeMl };
   }, [includeIndirect]);
 
   const sections = [
@@ -356,6 +368,74 @@ export function EducationalAccordion({
                     className="h-full bg-accent rounded-full"
                     style={{
                       width: `${roundPct(Math.min(100, (aiVsTraditional.browse / Math.max(aiVsTraditional.ai, aiVsTraditional.browse)) * 100))}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <label className="flex items-center justify-between gap-3 sm:gap-4 cursor-pointer min-w-0">
+            <div className="min-w-0 flex-1">
+              <p className="font-medium">Industrial vs free-range beef</p>
+              <p className="text-sm text-neutral">
+                Compare 12 oz ribeye — feedlot vs pasture-finished (
+                <Cite href={getSource("wfn-animal")!.url}>WFN</Cite>)
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={showBeefComparison}
+              onClick={() => onShowBeefComparisonChange(!showBeefComparison)}
+              className={`relative w-12 h-7 rounded-full transition-colors shrink-0 ${
+                showBeefComparison ? "bg-primary" : "bg-border"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform ${
+                  showBeefComparison ? "translate-x-5" : ""
+                }`}
+              />
+            </button>
+          </label>
+
+          {showBeefComparison && (
+            <div className="rounded-xl border border-border p-4 space-y-3">
+              <p className="text-sm font-medium">12 oz ribeye comparison</p>
+              <p className="text-xs text-neutral leading-relaxed">
+                Both are huge. Free-range often looks higher because more
+                pasture rainfall (green water) is counted over a longer raise —
+                not because the cow drinks more at the trough.
+              </p>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm gap-2">
+                  <span>Industrial (grain-finished)</span>
+                  <span className="font-medium text-primary shrink-0">
+                    {formatMl(beefComparison.industrial)} ml
+                  </span>
+                </div>
+                <div className="h-2 rounded-full bg-border overflow-hidden">
+                  <div
+                    className="h-full bg-primary rounded-full"
+                    style={{
+                      width: `${roundPct(Math.min(100, (beefComparison.industrial / Math.max(beefComparison.industrial, beefComparison.freeRange)) * 100))}%`,
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm gap-2">
+                  <span>Free-range (pasture-finished)</span>
+                  <span className="font-medium text-accent shrink-0">
+                    {formatMl(beefComparison.freeRange)} ml
+                  </span>
+                </div>
+                <div className="h-2 rounded-full bg-border overflow-hidden">
+                  <div
+                    className="h-full bg-accent rounded-full"
+                    style={{
+                      width: `${roundPct(Math.min(100, (beefComparison.freeRange / Math.max(beefComparison.industrial, beefComparison.freeRange)) * 100))}%`,
                     }}
                   />
                 </div>

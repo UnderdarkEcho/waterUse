@@ -366,24 +366,44 @@ export const activities: Activity[] = [
       "Grande-style latte — virtual water mostly from dairy, not what's in the cup.",
   },
   {
-    id: "ribeye-12oz",
-    name: "Ribeye Steak (12 oz)",
+    id: "ribeye-industrial",
+    name: "Ribeye — Industrial (12 oz)",
     category: "food",
     icon: "beef",
     unit: "steak",
     unitPlural: "steaks",
     defaultQuantity: 1,
     calculationType: "fixed",
-    fixedMlPerUnit: 5241000,
+    fixedMlPerUnit: 5236000,
     fixedMlDirect: 0,
-    fixedMlIndirect: 5241000,
-    rangeMl: [4500000, 6500000],
+    fixedMlIndirect: 5236000,
+    rangeMl: [4500000, 6000000],
     sourceUrl:
       "https://www.waterfootprint.org/resources/Report38-WaterFootprintAnimalProducts.pdf",
     sourceLabel:
-      "WFN beef (~15,400 L/kg global avg × 340 g / 12 oz serving)",
+      "WFN / Mekonnen & Hoekstra — grain-finished, ~15,400 L/kg × 340 g",
     description:
-      "Restaurant-cut ribeye — feed, grazing, and processing water embedded in the meat.",
+      "Feedlot-style beef — heavy irrigated corn/soy feed, faster finish.",
+  },
+  {
+    id: "ribeye-free-range",
+    name: "Ribeye — Free Range (12 oz)",
+    category: "food",
+    icon: "beef",
+    unit: "steak",
+    unitPlural: "steaks",
+    defaultQuantity: 1,
+    calculationType: "fixed",
+    fixedMlPerUnit: 6970000,
+    fixedMlDirect: 0,
+    fixedMlIndirect: 6970000,
+    rangeMl: [5800000, 8200000],
+    sourceUrl:
+      "https://www.waterfootprint.org/resources/Report38-WaterFootprintAnimalProducts.pdf",
+    sourceLabel:
+      "WFN / Mekonnen & Hoekstra — pasture-heavy, ~20,500 L/kg × 340 g",
+    description:
+      "Grass-finished / free-range — more green water on pasture, longer raise.",
   },
   {
     id: "salad",
@@ -588,8 +608,13 @@ export const presets = [
     quantity: 1,
   },
   {
-    label: "12 oz ribeye",
-    activityId: "ribeye-12oz",
+    label: "Industrial ribeye",
+    activityId: "ribeye-industrial",
+    quantity: 1,
+  },
+  {
+    label: "Free-range ribeye",
+    activityId: "ribeye-free-range",
     quantity: 1,
   },
 ];
