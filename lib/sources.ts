@@ -121,6 +121,24 @@ export const sources: Source[] = [
     note: "Virtual water in coffee supply chain",
   },
   {
+    id: "wfn-animal",
+    label: "Water Footprint Network — Animal products (2006)",
+    url: "https://www.waterfootprint.org/resources/Report38-WaterFootprintAnimalProducts.pdf",
+    note: "Beef ~15,400 L/kg; milk ~1,020 L/kg global averages",
+  },
+  {
+    id: "wfn-crops",
+    label: "Water Footprint Network — Crops (2011)",
+    url: "https://www.waterfootprint.org/resources/Report48-WaterFootprintCrops.pdf",
+    note: "Virtual water for vegetables and salad ingredients",
+  },
+  {
+    id: "water-calc-food",
+    label: "Water Footprint Calculator — Food guide",
+    url: "https://watercalculator.org/water-footprint-of-food-guide/",
+    note: "Processed and prepared meal benchmarks",
+  },
+  {
     id: "microsoft-zero-water",
     label: "Microsoft — Zero-water cooling datacenters (2024)",
     url: "https://www.microsoft.com/en-us/microsoft-cloud/blog/2024/12/09/sustainable-by-design-next-generation-datacenters-consume-zero-water-for-cooling/",

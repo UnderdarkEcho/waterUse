@@ -185,9 +185,13 @@ export default function DataPage() {
           </p>
           <p>
             <strong className="text-foreground">Physical activities</strong> use
-            EPA WaterSense benchmarks for direct household water. Coffee
-            includes virtual water from crop production (Water Footprint
-            Network).
+            EPA WaterSense benchmarks for direct household water.
+          </p>
+          <p>
+            <strong className="text-foreground">Food &amp; drink</strong> use
+            virtual water from crop and animal production (Water Footprint
+            Network, Water Footprint Calculator) — water embedded in growing
+            ingredients, not the liquid in your cup or on your plate.
           </p>
           <p>
             <strong className="text-foreground">Transport</strong> uses fuel

@@ -4,7 +4,8 @@ export type ActivityCategory =
   | "communication"
   | "browsing"
   | "transport"
-  | "physical";
+  | "physical"
+  | "food";
 
 export type CalculationType = "energy" | "fixed";
 
@@ -327,7 +328,7 @@ export const activities: Activity[] = [
   {
     id: "coffee",
     name: "Cup of Coffee",
-    category: "physical",
+    category: "food",
     icon: "coffee",
     unit: "cup",
     unitPlural: "cups",
@@ -343,6 +344,106 @@ export const activities: Activity[] = [
       "Water Footprint Network (bean growing + processing virtual water)",
     description:
       "One cup — mostly water used growing coffee beans, not in the cup itself.",
+  },
+  {
+    id: "starbucks-latte",
+    name: "Starbucks Latte (16 oz)",
+    category: "food",
+    icon: "coffee",
+    unit: "drink",
+    unitPlural: "drinks",
+    defaultQuantity: 1,
+    calculationType: "fixed",
+    fixedMlPerUnit: 440000,
+    fixedMlDirect: 470,
+    fixedMlIndirect: 439530,
+    rangeMl: [350000, 550000],
+    sourceUrl:
+      "https://www.waterfootprint.org/resources/Report38-WaterFootprintAnimalProducts.pdf",
+    sourceLabel:
+      "WFN milk (~1,020 L/kg) + coffee; ~14 oz milk + espresso in 16 oz drink",
+    description:
+      "Grande-style latte — virtual water mostly from dairy, not what's in the cup.",
+  },
+  {
+    id: "ribeye-12oz",
+    name: "Ribeye Steak (12 oz)",
+    category: "food",
+    icon: "beef",
+    unit: "steak",
+    unitPlural: "steaks",
+    defaultQuantity: 1,
+    calculationType: "fixed",
+    fixedMlPerUnit: 5241000,
+    fixedMlDirect: 0,
+    fixedMlIndirect: 5241000,
+    rangeMl: [4500000, 6500000],
+    sourceUrl:
+      "https://www.waterfootprint.org/resources/Report38-WaterFootprintAnimalProducts.pdf",
+    sourceLabel:
+      "WFN beef (~15,400 L/kg global avg × 340 g / 12 oz serving)",
+    description:
+      "Restaurant-cut ribeye — feed, grazing, and processing water embedded in the meat.",
+  },
+  {
+    id: "salad",
+    name: "Salad",
+    category: "food",
+    icon: "salad",
+    unit: "salad",
+    unitPlural: "salads",
+    defaultQuantity: 1,
+    calculationType: "fixed",
+    fixedMlPerUnit: 200000,
+    fixedMlDirect: 500,
+    fixedMlIndirect: 199500,
+    rangeMl: [120000, 350000],
+    sourceUrl:
+      "https://www.waterfootprint.org/resources/Report48-WaterFootprintCrops.pdf",
+    sourceLabel:
+      "WFN crops (greens, tomato, cucumber) + dressing; ~300 g bowl",
+    description:
+      "Mixed greens bowl with veggies and dressing — far lighter than beef.",
+  },
+  {
+    id: "tv-dinner",
+    name: "TV Dinner",
+    category: "food",
+    icon: "microwave",
+    unit: "meal",
+    unitPlural: "meals",
+    defaultQuantity: 1,
+    calculationType: "fixed",
+    fixedMlPerUnit: 765000,
+    fixedMlDirect: 50,
+    fixedMlIndirect: 764950,
+    rangeMl: [500000, 1000000],
+    sourceUrl:
+      "https://watercalculator.org/water-footprint-of-food-guide/",
+    sourceLabel:
+      "Water Footprint Calculator / WFN (~1,800 L/kg processed frozen meal)",
+    description:
+      "Typical frozen entrée with meat, starch, and sauce (~425 g tray).",
+  },
+  {
+    id: "vegan-processed-meal",
+    name: "Whole Foods Vegan Processed Meal",
+    category: "food",
+    icon: "sprout",
+    unit: "meal",
+    unitPlural: "meals",
+    defaultQuantity: 1,
+    calculationType: "fixed",
+    fixedMlPerUnit: 420000,
+    fixedMlDirect: 50,
+    fixedMlIndirect: 419950,
+    rangeMl: [280000, 550000],
+    sourceUrl:
+      "https://watercalculator.org/water-footprint-of-food-guide/",
+    sourceLabel:
+      "Water Footprint Calculator / WFN (~1,200 L/kg plant-based processed)",
+    description:
+      "Prepared vegan bowl or heat-and-eat meal from Whole Foods (~350 g).",
   },
   {
     id: "brush-teeth",
@@ -479,6 +580,16 @@ export const presets = [
   {
     label: "Lead a horse to water",
     activityId: "horse-to-water",
+    quantity: 1,
+  },
+  {
+    label: "Starbucks latte",
+    activityId: "starbucks-latte",
+    quantity: 1,
+  },
+  {
+    label: "12 oz ribeye",
+    activityId: "ribeye-12oz",
     quantity: 1,
   },
 ];

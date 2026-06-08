@@ -261,6 +261,9 @@ export function EducationalAccordion({
               "wfn-transport",
               "usga-golf",
               "wfn-coffee",
+              "wfn-animal",
+              "wfn-crops",
+              "water-calc-food",
               "microsoft-zero-water",
               "eia-thermo",
             ]}
