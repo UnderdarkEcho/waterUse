@@ -130,7 +130,7 @@ export const sources: Source[] = [
     id: "wfn-crops",
     label: "Water Footprint Network — Crops (2011)",
     url: "https://www.waterfootprint.org/resources/Report48-WaterFootprintCrops.pdf",
-    note: "Virtual water for vegetables and salad ingredients",
+    note: "Virtual water for crops and tree nuts; almonds ~16,190 L/kg global avg",
   },
   {
     id: "water-calc-food",

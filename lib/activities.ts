@@ -466,6 +466,26 @@ export const activities: Activity[] = [
       "Prepared vegan bowl or heat-and-eat meal from Whole Foods (~350 g).",
   },
   {
+    id: "almonds-serving",
+    name: "Almonds (1 serving)",
+    category: "food",
+    icon: "nut",
+    unit: "serving",
+    unitPlural: "servings",
+    defaultQuantity: 1,
+    calculationType: "fixed",
+    fixedMlPerUnit: 459000,
+    fixedMlDirect: 0,
+    fixedMlIndirect: 459000,
+    rangeMl: [380000, 620000],
+    sourceUrl:
+      "https://www.waterfootprint.org/resources/Report48-WaterFootprintCrops.pdf",
+    sourceLabel:
+      "WFN / Mekonnen & Hoekstra — ~16,190 L/kg × 28 g (1 oz USDA serving)",
+    description:
+      "Standard 1 oz handful — tree-nut irrigation, mostly from growing, not in the nut.",
+  },
+  {
     id: "brush-teeth",
     name: "Brushing Teeth (tap on)",
     category: "physical",
