@@ -1,6 +1,7 @@
 {
   "name": "water-use",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "Water footprint calculator for AI and daily life — cited estimates, comparisons, and shareable results",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
