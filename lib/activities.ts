@@ -38,7 +38,7 @@ export interface CitedWater {
 export interface CitedEnergyWh {
   lowWh: number;
   centralWh: number;
-  /** The Conversation GPT-4o figure. Display rounds this to "about 2 Wh". */
+  /** High end. ai-text-energy-conversation-gpt4o central, v0.1, The Conversation. */
   upperContextWh: number;
   companyMedianLowWh: number;
   companyMedianHighWh: number;
@@ -74,11 +74,9 @@ export interface Activity {
 }
 
 /**
- * Display line requested by brief 001.
- * 2 Wh rounds ai-text-energy-conversation-gpt4o central 1.75 Wh (v0.1, The Conversation).
- * 2.0 Wh is not its own record, so it is not stored as a number.
+ * High end is ai-text-energy-conversation-gpt4o central 1.75 Wh (v0.1, The Conversation).
  */
-export const AI_TEXT_ENERGY_DISPLAY = "about 0.1–2 Wh";
+export const AI_TEXT_ENERGY_DISPLAY = "about 0.1–1.75 Wh";
 
 export const AI_TEXT_ENERGY: CitedEnergyWh = {
   lowWh: 0.1, // ai-text-energy-google-gemini low; ai-text-energy-epoch-gpt4o low. v0.1. Google; Epoch AI.

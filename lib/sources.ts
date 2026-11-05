@@ -22,7 +22,7 @@ export const sources: Source[] = [
     id: "conversation-2025",
     label: "The Conversation — AI hidden water cost (2025)",
     url: "https://theconversation.com/ai-has-a-hidden-water-cost-heres-how-to-calculate-yours-263252",
-    note: "v0.1 record ai-text-energy-conversation-gpt4o. 1.75 Wh for a medium GPT-4o query. Used only as the upper context for the about 0.1–2 Wh line. 2 Wh is that figure rounded, not a separate record.",
+    note: "v0.1 record ai-text-energy-conversation-gpt4o. 1.75 Wh for a medium GPT-4o query. High end of the about 0.1–1.75 Wh line.",
   },
   {
     id: "obringer-2021",

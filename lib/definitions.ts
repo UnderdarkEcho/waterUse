@@ -27,12 +27,12 @@ const electricityValue = `about ${formatRangeMl(electricity.lowMlPerUnit, electr
 
 const sharedAssumptions = [
   "Inference only. Training is not included.",
-  `“About 2 Wh” rounds The Conversation’s ${AI_TEXT_ENERGY.upperContextWh} Wh GPT-4o figure (record ai-text-energy-conversation-gpt4o). 2 Wh is not its own record.`,
+  `The high end, ${AI_TEXT_ENERGY.upperContextWh} Wh, is The Conversation’s GPT-4o figure (record ai-text-energy-conversation-gpt4o).`,
   "Epoch’s model-based range for a GPT-4o query also reaches 4 Wh under other assumptions (ai-text-energy-epoch-gpt4o high). That high is not the top of the line shown here.",
   "Google also reports 0.12 mL on-site for a narrower boundary (ai-text-water-google-onsite low). The 0.26 mL figure is the wider on-site median.",
   "Altman’s 0.32 mL does not state whether cooling water, electricity, or both are included.",
   "The 10–50 mL band is for GPT-3-class models in 2023 and includes power-plant water. It is a different scope from on-site cooling.",
-  "A Conversation figure for a GPT-5 query is 19.3 Wh (ai-text-energy-conversation-gpt5). It is not included in the 0.1–2 Wh line.",
+  "A Conversation figure for a GPT-5 query is 19.3 Wh (ai-text-energy-conversation-gpt5). It is not included in the 0.1–1.75 Wh line.",
   "The data file has no separate email or multi-prompt record. A conversation multiplies the per-prompt ranges by the number of prompts.",
 ];
 

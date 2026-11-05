@@ -223,8 +223,9 @@ export default function DataPage() {
             {AI_TEXT_ENERGY_DISPLAY} per prompt (central {AI_TEXT_ENERGY.centralWh}{" "}
             Wh, Epoch). Company-stated medians are {AI_TEXT_ENERGY.companyMedianLowWh}{" "}
             Wh (Google) and {AI_TEXT_ENERGY.companyMedianHighWh} Wh (Altman). The
-            “2 Wh” end rounds The Conversation’s {AI_TEXT_ENERGY.upperContextWh} Wh
-            GPT-4o figure; 2 Wh is not its own record. On-site cooling is about{" "}
+            high end, {AI_TEXT_ENERGY.upperContextWh} Wh, is The Conversation’s
+            GPT-4o figure (record ai-text-energy-conversation-gpt4o). On-site
+            cooling is about{" "}
             {formatRangeMl(
               AI_TEXT_WATER.scopes[0].lowMlPerUnit,
               AI_TEXT_WATER.scopes[0].highMlPerUnit

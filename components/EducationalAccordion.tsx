@@ -269,12 +269,12 @@ export function EducationalAccordion({
             )}{" "}
             mL (
             <Cite href={getSource("li-2023")!.url}>Li et al. 2023</Cite>,
-            GPT-3-class, older). Those water scopes are not added. The “2 Wh”
-            end rounds{" "}
+            GPT-3-class, older). Those water scopes are not added. The high end,{" "}
+            {AI_TEXT_ENERGY.upperContextWh} Wh, is{" "}
             <Cite href={getSource("conversation-2025")!.url}>
               The Conversation
             </Cite>
-            ’s {AI_TEXT_ENERGY.upperContextWh} Wh GPT-4o figure. Sending a plain
+            ’s GPT-4o figure (record ai-text-energy-conversation-gpt4o). Sending a plain
             email still uses an older energy × mL/Wh estimate that this data
             file does not rate.
           </p>
