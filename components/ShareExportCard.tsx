@@ -1,11 +1,10 @@
 "use client";
 
 import { getShareCardTheme } from "@/lib/share-card-theme";
-import { formatMl } from "@/lib/format";
 import { forwardRef } from "react";
 
 interface ShareExportCardProps {
-  totalMl: number;
+  amountLabel: string;
   activityName: string;
   quantity: number;
   unitLabel: string;
@@ -17,7 +16,7 @@ interface ShareExportCardProps {
 export const ShareExportCard = forwardRef<HTMLDivElement, ShareExportCardProps>(
   function ShareExportCard(
     {
-      totalMl,
+      amountLabel,
       activityName,
       quantity,
       unitLabel,
@@ -72,7 +71,7 @@ export const ShareExportCard = forwardRef<HTMLDivElement, ShareExportCardProps>(
             margin: "0 0 8px",
           }}
         >
-          {formatMl(totalMl)} ml
+          {amountLabel} ml
         </p>
         <p style={{ fontSize: 18, color: theme.muted, margin: "0 0 16px" }}>
           {activityName} × {quantity} {unitLabel}

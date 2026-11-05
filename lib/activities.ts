@@ -1,3 +1,5 @@
+import { formatRangeMl } from "./format";
+
 export type ActivityCategory =
   | "ai"
   | "streaming"
@@ -8,6 +10,44 @@ export type ActivityCategory =
   | "food";
 
 export type CalculationType = "energy" | "fixed";
+
+/** One figure from footprint-data v0.1. */
+export interface FigureCitation {
+  recordId: string;
+  version: "v0.1";
+  sourceName: string;
+}
+
+export type WaterScopeId = "on-site" | "electricity-inclusive";
+
+export interface CitedWaterScope {
+  scope: WaterScopeId;
+  label: string;
+  lowMlPerUnit: number;
+  highMlPerUnit: number;
+  companyStated: boolean;
+  citations: FigureCitation[];
+  note: string;
+}
+
+export interface CitedWater {
+  defaultScope: WaterScopeId;
+  scopes: CitedWaterScope[];
+}
+
+export interface CitedEnergyWh {
+  lowWh: number;
+  centralWh: number;
+  /** The Conversation GPT-4o figure. Display rounds this to "about 2 Wh". */
+  upperContextWh: number;
+  companyMedianLowWh: number;
+  companyMedianHighWh: number;
+  citations: FigureCitation[];
+}
+
+function cite(recordId: string, sourceName: string): FigureCitation {
+  return { recordId, version: "v0.1", sourceName };
+}
 
 export interface Activity {
   id: string;
@@ -25,13 +65,93 @@ export interface Activity {
   fixedMlDirect?: number;
   fixedMlIndirect?: number;
   rangeMl?: [number, number];
+  /** When set, show this range. Do not multiply energy into water. */
+  citedWater?: CitedWater;
+  citedEnergyWh?: CitedEnergyWh;
   sourceUrl: string;
   sourceLabel: string;
   description: string;
 }
 
-export const DEFAULT_DIRECT_ML_PER_WH = 0.8;
-export const DEFAULT_INDIRECT_ML_PER_WH = 1.2;
+/**
+ * Display line requested by brief 001.
+ * 2 Wh rounds ai-text-energy-conversation-gpt4o central 1.75 Wh (v0.1, The Conversation).
+ * 2.0 Wh is not its own record, so it is not stored as a number.
+ */
+export const AI_TEXT_ENERGY_DISPLAY = "about 0.1–2 Wh";
+
+export const AI_TEXT_ENERGY: CitedEnergyWh = {
+  lowWh: 0.1, // ai-text-energy-google-gemini low; ai-text-energy-epoch-gpt4o low. v0.1. Google; Epoch AI.
+  centralWh: 0.3, // ai-text-energy-epoch-gpt4o central. v0.1. Epoch AI.
+  upperContextWh: 1.75, // ai-text-energy-conversation-gpt4o central. v0.1. The Conversation.
+  companyMedianLowWh: 0.24, // ai-text-energy-google-gemini central. v0.1. Google. Company-stated.
+  companyMedianHighWh: 0.34, // ai-text-energy-openai-altman central. v0.1. OpenAI (Sam Altman). Company-stated.
+  citations: [
+    cite("ai-text-energy-google-gemini", "Google"),
+    cite("ai-text-energy-epoch-gpt4o", "Epoch AI"),
+    cite("ai-text-energy-openai-altman", "OpenAI (Sam Altman)"),
+    cite("ai-text-energy-conversation-gpt4o", "The Conversation"),
+  ],
+};
+
+export const AI_TEXT_WATER: CitedWater = {
+  defaultScope: "on-site",
+  scopes: [
+    {
+      scope: "on-site",
+      label: "On-site cooling",
+      lowMlPerUnit: 0.26, // ai-text-water-google-onsite central. v0.1. Google. Company-stated, on-site.
+      highMlPerUnit: 0.32, // ai-text-water-openai-altman central. v0.1. OpenAI (Sam Altman). Company-stated. Scope in the data file is unknown.
+      companyStated: true,
+      citations: [
+        cite("ai-text-water-google-onsite", "Google"),
+        cite("ai-text-water-openai-altman", "OpenAI (Sam Altman)"),
+      ],
+      note: "Google 0.26 mL is on-site cooling, company-stated. Altman 0.32 mL is company-stated and does not disclose a boundary.",
+    },
+    {
+      scope: "electricity-inclusive",
+      label: "Electricity-inclusive",
+      lowMlPerUnit: 10, // ai-text-water-li-ren low. v0.1. Li, Yang, Islam, and Ren.
+      highMlPerUnit: 50, // ai-text-water-li-ren high. v0.1. Li, Yang, Islam, and Ren.
+      companyStated: false,
+      citations: [cite("ai-text-water-li-ren", "Li, Yang, Islam, and Ren")],
+      note: "Li et al. 2023, GPT-3-class, older. Includes power-plant water. Not added to on-site cooling.",
+    },
+  ],
+};
+
+/** cmp-shower-minute-watersense central. v0.1. EPA WaterSense. Max 2.0 gpm. */
+export const SHOWER_ML_PER_MIN = 7570;
+
+/** cmp-videocall-hour-water low. v0.1. Purdue / Obringer et al. Central is null. */
+export const ZOOM_ML_PER_HOUR_LOW = 2000;
+/** cmp-videocall-hour-water high. v0.1. Purdue / Obringer et al. Central is null. */
+export const ZOOM_ML_PER_HOUR_HIGH = 12000;
+
+/** cmp-golf-facility-year central. v0.1. GCSAA. Median US facility, 2024, mL per year. */
+export const GOLF_FACILITY_ML_PER_YEAR = 85_000_000_000;
+
+export const ZOOM_WATER: CitedWater = {
+  defaultScope: "electricity-inclusive",
+  scopes: [
+    {
+      scope: "electricity-inclusive",
+      label: "Electricity-inclusive",
+      lowMlPerUnit: ZOOM_ML_PER_HOUR_LOW,
+      highMlPerUnit: ZOOM_ML_PER_HOUR_HIGH,
+      companyStated: false,
+      citations: [
+        cite("cmp-videocall-hour-water", "Purdue / Obringer et al."),
+      ],
+      note: "Purdue / Obringer et al. 2021: 2–12 liters per hour. Electricity-inclusive.",
+    },
+  ],
+};
+
+export function aiEnergyNote(): string {
+  return `Energy ${AI_TEXT_ENERGY_DISPLAY} per prompt. Company-stated medians are ${AI_TEXT_ENERGY.companyMedianLowWh}–${AI_TEXT_ENERGY.companyMedianHighWh} Wh.`;
+}
 
 export const activities: Activity[] = [
   {
@@ -43,15 +163,12 @@ export const activities: Activity[] = [
     unitPlural: "queries",
     defaultQuantity: 1,
     calculationType: "energy",
-    energyWhPerUnit: 1.75,
-    directMlPerWh: 0.8,
-    indirectMlPerWh: 1.2,
-    rangeMl: [2, 40],
-    sourceUrl:
-      "https://theconversation.com/ai-has-a-hidden-water-cost-heres-how-to-calculate-yours-263252",
-    sourceLabel: "The Conversation (GPT-4o, 1.75 Wh × 1.3–2.0 ml/Wh)",
-    description:
-      "GPT-4o-class model, ~150–200 word reply, 1.75 Wh → 3.5 ml (see definition).",
+    citedWater: AI_TEXT_WATER,
+    citedEnergyWh: AI_TEXT_ENERGY,
+    sourceUrl: "https://arxiv.org/abs/2508.15734",
+    sourceLabel:
+      "Google 2025, on-site, company-stated; Altman 2025, company-stated; Epoch; Li et al. 2023",
+    description: `One text prompt. ${aiEnergyNote()} On-site cooling about ${formatRangeMl(AI_TEXT_WATER.scopes[0].lowMlPerUnit, AI_TEXT_WATER.scopes[0].highMlPerUnit)} mL. Electricity-inclusive about ${formatRangeMl(AI_TEXT_WATER.scopes[1].lowMlPerUnit, AI_TEXT_WATER.scopes[1].highMlPerUnit)} mL (2023, GPT-3-class). Scopes are separate.`,
   },
   {
     id: "ai-conversation",
@@ -62,14 +179,13 @@ export const activities: Activity[] = [
     unitPlural: "queries",
     defaultQuantity: 10,
     calculationType: "energy",
-    energyWhPerUnit: 1.75,
-    directMlPerWh: 0.8,
-    indirectMlPerWh: 1.2,
-    rangeMl: [23, 400],
-    sourceUrl:
-      "https://theconversation.com/ai-has-a-hidden-water-cost-heres-how-to-calculate-yours-263252",
-    sourceLabel: "The Conversation (10 × single query estimate)",
-    description: "A typical back-and-forth session of about 10 prompts.",
+    citedWater: AI_TEXT_WATER,
+    citedEnergyWh: AI_TEXT_ENERGY,
+    sourceUrl: "https://arxiv.org/abs/2508.15734",
+    sourceLabel:
+      "Google 2025, on-site, company-stated; Altman 2025, company-stated; Epoch; Li et al. 2023",
+    description:
+      "Default 10 text prompts. Each prompt uses the single-query ranges. The data file has no separate session total.",
   },
   {
     id: "ai-email",
@@ -80,14 +196,13 @@ export const activities: Activity[] = [
     unitPlural: "emails",
     defaultQuantity: 1,
     calculationType: "energy",
-    energyWhPerUnit: 1.75,
-    directMlPerWh: 0.8,
-    indirectMlPerWh: 1.2,
-    rangeMl: [2, 40],
-    sourceUrl:
-      "https://theconversation.com/ai-has-a-hidden-water-cost-heres-how-to-calculate-yours-263252",
-    sourceLabel: "The Conversation (~100-word AI output)",
-    description: "Drafting a short ~100-word email with AI assistance.",
+    citedWater: AI_TEXT_WATER,
+    citedEnergyWh: AI_TEXT_ENERGY,
+    sourceUrl: "https://arxiv.org/abs/2508.15734",
+    sourceLabel:
+      "Google 2025, on-site, company-stated; Altman 2025, company-stated; Epoch; Li et al. 2023",
+    description:
+      "Counted as one text prompt. The data file has no separate email figure.",
   },
   {
     id: "netflix-4k",
@@ -104,7 +219,8 @@ export const activities: Activity[] = [
     rangeMl: [500, 800],
     sourceUrl:
       "https://www.purdue.edu/newsroom/archive/releases/2021/Q1/turn-off-that-camera-during-virtual-meetings,-environmental-study-says.html",
-    sourceLabel: "Purdue / Obringer et al. (data-center-focused estimate)",
+    sourceLabel:
+      "Purdue / Obringer et al. (data-center-focused estimate). Per-service rate unverified.",
     description: "One hour of high-definition or 4K video streaming.",
   },
   {
@@ -122,7 +238,8 @@ export const activities: Activity[] = [
     rangeMl: [200, 500],
     sourceUrl:
       "https://doi.org/10.1016/j.resconrec.2020.105389",
-    sourceLabel: "Obringer et al. (mixed SD/HD video, lower than 4K)",
+    sourceLabel:
+      "Obringer et al. (mixed SD/HD video, lower than 4K). Per-service rate unverified.",
     description:
       "Watching YouTube videos — tutorials, vlogs, or music videos.",
   },
@@ -141,7 +258,8 @@ export const activities: Activity[] = [
     rangeMl: [60, 200],
     sourceUrl:
       "https://doi.org/10.1016/j.resconrec.2020.105389",
-    sourceLabel: "Obringer et al. (audio-only, minimal data transfer)",
+    sourceLabel:
+      "Obringer et al. (audio-only, minimal data transfer). Per-service rate unverified.",
     description: "Listening to Spotify, Apple Music, or podcasts.",
   },
   {
@@ -159,7 +277,8 @@ export const activities: Activity[] = [
     rangeMl: [300, 500],
     sourceUrl:
       "https://www.purdue.edu/newsroom/archive/releases/2021/Q1/turn-off-that-camera-during-virtual-meetings,-environmental-study-says.html",
-    sourceLabel: "Purdue / Obringer et al. (short-form video, lower bitrate)",
+    sourceLabel:
+      "Purdue / Obringer et al. (short-form video, lower bitrate). Per-service rate unverified.",
     description: "Scrolling short-form video and social feeds for an hour.",
   },
   {
@@ -171,14 +290,13 @@ export const activities: Activity[] = [
     unitPlural: "hours",
     defaultQuantity: 1,
     calculationType: "fixed",
-    fixedMlPerUnit: 1750,
-    fixedMlDirect: 700,
-    fixedMlIndirect: 1050,
-    rangeMl: [1500, 2000],
+    citedWater: ZOOM_WATER,
+    rangeMl: [ZOOM_ML_PER_HOUR_LOW, ZOOM_ML_PER_HOUR_HIGH],
     sourceUrl:
       "https://www.purdue.edu/newsroom/archive/releases/2021/Q1/turn-off-that-camera-during-virtual-meetings,-environmental-study-says.html",
-    sourceLabel: "Purdue / Obringer et al. (2–12 L/hr, camera on)",
-    description: "One hour of videoconferencing with camera enabled.",
+    sourceLabel:
+      "Purdue / Obringer et al. 2021 (2,000–12,000 mL/hr, electricity-inclusive)",
+    description: `One hour of videoconferencing. Purdue/Obringer range is ${ZOOM_ML_PER_HOUR_LOW / 1000}–${ZOOM_ML_PER_HOUR_HIGH / 1000} liters per hour (${ZOOM_ML_PER_HOUR_LOW.toLocaleString()}–${ZOOM_ML_PER_HOUR_HIGH.toLocaleString()} mL), electricity-inclusive.`,
   },
   {
     id: "web-browsing",
@@ -195,7 +313,8 @@ export const activities: Activity[] = [
     rangeMl: [100, 250],
     sourceUrl:
       "https://doi.org/10.1016/j.resconrec.2020.105389",
-    sourceLabel: "Obringer et al., Resources Conservation & Recycling",
+    sourceLabel:
+      "Obringer et al., Resources Conservation & Recycling. Per-service rate unverified.",
     description: "General web browsing, reading articles, and light pages.",
   },
   {
@@ -277,19 +396,18 @@ export const activities: Activity[] = [
     name: "Golf Course Irrigation",
     category: "physical",
     icon: "flag",
-    unit: "hour",
-    unitPlural: "hours",
+    unit: "year",
+    unitPlural: "years",
     defaultQuantity: 1,
     calculationType: "fixed",
-    fixedMlPerUnit: 473000000,
-    fixedMlDirect: 473000000,
+    fixedMlPerUnit: GOLF_FACILITY_ML_PER_YEAR,
+    fixedMlDirect: GOLF_FACILITY_ML_PER_YEAR,
     fixedMlIndirect: 0,
-    rangeMl: [200000000, 800000000],
     sourceUrl:
-      "https://www.usga.org/content/dam/usga/pdf/Water%20Resource%20Center/how-much-water-does-golf-use.pdf",
-    sourceLabel: "USGA Water Resource Center (avg. course, peak hour)",
-    description:
-      "One hour of irrigation on an 18-hole golf course in season.",
+      "https://www.gcsaa.org/docs/default-source/what-we-do/gcep-phase-4-water-report.pdf",
+    sourceLabel: "GCSAA Phase 4 (2024 median, per year)",
+    // 9,700 L/h is the annual average in cmp-golf-facility-year notes. v0.1. GCSAA.
+    description: `Median water applied per US golf facility in 2024: about ${GOLF_FACILITY_ML_PER_YEAR / 1_000_000_000} million liters per year. Averaged over the year, about 9,700 liters per hour.`,
   },
   {
     id: "laundry",
@@ -567,13 +685,12 @@ export const activities: Activity[] = [
     unitPlural: "minutes",
     defaultQuantity: 5,
     calculationType: "fixed",
-    fixedMlPerUnit: 4000,
-    fixedMlDirect: 4000,
+    fixedMlPerUnit: SHOWER_ML_PER_MIN,
+    fixedMlDirect: SHOWER_ML_PER_MIN,
     fixedMlIndirect: 0,
-    rangeMl: [3800, 4500],
     sourceUrl: "https://www.epa.gov/watersense/showerheads",
-    sourceLabel: "EPA WaterSense (2.5 gal/min)",
-    description: "Running a standard shower head.",
+    sourceLabel: "EPA WaterSense max 2.0 gpm",
+    description: `EPA WaterSense maximum showerhead flow, 2.0 gallons per minute (${SHOWER_ML_PER_MIN.toLocaleString()} mL per minute).`,
   },
 ];
 

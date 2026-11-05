@@ -10,7 +10,7 @@ export const sources: Source[] = [
     id: "li-2023",
     label: 'Li et al., "Making AI Less Thirsty" (2023)',
     url: "https://arxiv.org/abs/2304.03271",
-    note: "Foundational AI water footprint model; WUE, scope-1/2/3 water",
+    note: "v0.1 record ai-text-water-li-ren. About 10–50 mL per GPT-3 response in US data centers, electricity-inclusive, 2023. Mixed rating.",
   },
   {
     id: "ren-oecd",
@@ -22,13 +22,13 @@ export const sources: Source[] = [
     id: "conversation-2025",
     label: "The Conversation — AI hidden water cost (2025)",
     url: "https://theconversation.com/ai-has-a-hidden-water-cost-heres-how-to-calculate-yours-263252",
-    note: "ml/Wh formula; GPT-4o/5 estimates; context vs. lawns",
+    note: "v0.1 record ai-text-energy-conversation-gpt4o. 1.75 Wh for a medium GPT-4o query. Used only as the upper context for the about 0.1–2 Wh line. 2 Wh is that figure rounded, not a separate record.",
   },
   {
     id: "obringer-2021",
     label: "Obringer et al., Res. Conserv. Recycl. (2021)",
     url: "https://doi.org/10.1016/j.resconrec.2020.105389",
-    note: "Streaming, videoconferencing, internet water footprints",
+    note: "v0.1 record cmp-videocall-hour-water: video calls 2,000–12,000 mL/hr, electricity-inclusive. Per-service streaming rates in this app (Netflix, YouTube, music, social video) are unverified.",
   },
   {
     id: "eesi-dc",
@@ -44,9 +44,21 @@ export const sources: Source[] = [
   },
   {
     id: "google-gemini",
-    label: "Google Cloud — AI inference environmental impact",
-    url: "https://cloud.google.com/blog/products/infrastructure/measuring-the-environmental-impact-of-ai-inference",
-    note: "Gemini median prompt: 0.24 Wh, ~0.26 ml water",
+    label: "Google — Environmental impact of delivering AI at Google scale (Elsworth et al. 2025)",
+    url: "https://arxiv.org/abs/2508.15734",
+    note: "v0.1 records ai-text-energy-google-gemini (0.24 Wh median, 0.1 Wh narrower) and ai-text-water-google-onsite (0.26 mL on-site, 0.12 mL narrower). Company-stated. Mixed rating.",
+  },
+  {
+    id: "epoch-ai",
+    label: "Epoch AI — How much energy does ChatGPT use? (2025)",
+    url: "https://epoch.ai/gradient-updates/how-much-energy-does-chatgpt-use",
+    note: "v0.1 record ai-text-energy-epoch-gpt4o. Model-based GPT-4o query: 0.3 Wh central, low 0.1 Wh, high 4 Wh. Mixed rating.",
+  },
+  {
+    id: "altman-openai",
+    label: "DatacenterDynamics — Altman on a ChatGPT query (2025)",
+    url: "https://www.datacenterdynamics.com/en/news/sam-altman-chatgpt-queries-consume-034-watt-hours-of-electricity-and-0000085-gallons-of-water/",
+    note: "v0.1 records ai-text-energy-openai-altman (0.34 Wh) and ai-text-water-openai-altman (0.32 mL). Company-stated. No method or boundary. Weak rating.",
   },
   {
     id: "stanford-ai-index",
@@ -91,6 +103,12 @@ export const sources: Source[] = [
     note: "Household water benchmarks for context",
   },
   {
+    id: "epa-showerheads",
+    label: "EPA WaterSense — Showerheads",
+    url: "https://www.epa.gov/watersense/showerheads",
+    note: "v0.1 record cmp-shower-minute-watersense. WaterSense maximum 2.0 gpm = 7,570 mL/min. A 5-minute shower in the comparisons is 5 × that rate (37,850 mL).",
+  },
+  {
     id: "epa-outdoor",
     label: "EPA WaterSense — Outdoor water use",
     url: "https://www.epa.gov/watersense/outdoors",
@@ -109,10 +127,10 @@ export const sources: Source[] = [
     note: "Aviation fuel virtual water",
   },
   {
-    id: "usga-golf",
-    label: "USGA — How much water does golf use?",
-    url: "https://www.usga.org/content/dam/usga/pdf/Water%20Resource%20Center/how-much-water-does-golf-use.pdf",
-    note: "Golf course irrigation benchmarks",
+    id: "gcsaa-golf",
+    label: "GCSAA — Golf Course Environmental Profile, Phase 4 water use (2025)",
+    url: "https://www.gcsaa.org/docs/default-source/what-we-do/gcep-phase-4-water-report.pdf",
+    note: "v0.1 record cmp-golf-facility-year. Median applied water per US facility in 2024, about 85 million liters per year. The notes also state about 9,700 liters per hour averaged over the year.",
   },
   {
     id: "wfn-coffee",

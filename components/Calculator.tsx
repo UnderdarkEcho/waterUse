@@ -3,21 +3,22 @@
 import { ActivitySelect } from "./ActivitySelect";
 import { WaterDrop } from "./WaterDrop";
 import { ActivityDefinitionCard } from "./ActivityDefinitionCard";
-import { activities, getActivity, presets } from "@/lib/activities";
+import { activities, aiEnergyNote, getActivity, presets } from "@/lib/activities";
 import { getActivityDefinition } from "@/lib/definitions";
 import { calculateWater } from "@/lib/calculate";
-import { getComparison } from "@/lib/comparisons";
+import { getComparison, getComparisonSpan } from "@/lib/comparisons";
 import {
   formatActivityUsage,
   formatGallons,
   formatLiters,
-  formatMl,
+  formatRangeMl,
+  formatResultMl,
 } from "@/lib/format";
 import { captureShareCard, downloadShareImage } from "@/lib/export-image";
 import { getImpactLevel } from "@/lib/impact";
 import { useTheme } from "./ThemeProvider";
 import { Copy, Download, Droplets } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface CalculatorProps {
   activityId: string;
@@ -40,10 +41,15 @@ export function Calculator({
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [pulse, setPulse] = useState(false);
+  const [showAlternateScope, setShowAlternateScope] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const activity = getActivity(activityId) ?? activities[0];
   const definition = getActivityDefinition(activityId);
+
+  useEffect(() => {
+    setShowAlternateScope(false);
+  }, [activityId]);
 
   const result = useMemo(
     () =>
@@ -51,7 +57,16 @@ export function Calculator({
     [activity, quantity, includeIndirect]
   );
 
-  const comparison = getComparison(result.totalMl);
+  const defaultScope = activity.citedWater?.scopes.find(
+    (scope) => scope.scope === activity.citedWater?.defaultScope
+  );
+  const alternateScope = activity.citedWater?.scopes.find(
+    (scope) => scope.scope !== activity.citedWater?.defaultScope
+  );
+  const amountLabel = formatResultMl(result);
+  const comparison = result.citedRangeMl
+    ? getComparisonSpan(result.citedRangeMl[0], result.citedRangeMl[1])
+    : getComparison(result.totalMl);
   const impact = getImpactLevel(result.totalMl);
   const unitLabel = quantity === 1 ? activity.unit : activity.unitPlural;
 
@@ -71,7 +86,8 @@ export function Calculator({
       activity.unit,
       activity.unitPlural
     );
-    const text = `I used ${formatMl(result.totalMl)} ml of water (${formatLiters(result.totalMl)} liters) from ${usage} — that's roughly the same as ${comparison.replace(/^[^\s]+\s/, "")}. Calculate yours at Water Footprint Calculator.`;
+    const scopeNote = result.scopeLabel ? ` Scope: ${result.scopeLabel}.` : "";
+    const text = `About ${amountLabel} ml of water for ${usage}.${scopeNote} Roughly the same as ${comparison.replace(/^[^\s]+\s/, "")}.`;
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -163,15 +179,81 @@ export function Calculator({
             <p
               className={`text-4xl sm:text-5xl md:text-6xl font-bold text-primary tabular-nums transition-transform break-words max-w-full ${pulse ? "scale-105" : ""}`}
             >
-              {formatMl(result.totalMl)}{" "}
+              {amountLabel}{" "}
               <span className="text-xl sm:text-2xl md:text-3xl">ml</span>
             </p>
-            <p className="text-neutral text-xs sm:text-sm px-2">
-              ({formatLiters(result.totalMl)} liters / {formatGallons(result.totalMl)}{" "}
-              gallons)
-            </p>
+            {(!result.citedRangeMl || result.citedRangeMl[0] >= 1000) && (
+              <p className="text-neutral text-xs sm:text-sm px-2">
+                ({formatLiters(result.citedRangeMl?.[0] ?? result.totalMl)}
+                {result.citedRangeMl
+                  ? `–${formatLiters(result.citedRangeMl[1])}`
+                  : ""}{" "}
+                liters / {formatGallons(result.citedRangeMl?.[0] ?? result.totalMl)}
+                {result.citedRangeMl
+                  ? `–${formatGallons(result.citedRangeMl[1])}`
+                  : ""}{" "}
+                gallons)
+              </p>
+            )}
 
-            <WaterDrop ml={result.totalMl} animate={pulse && impact === "low"} />
+            {(result.scopeLabel || defaultScope?.companyStated) && (
+              <div className="flex flex-wrap justify-center gap-2">
+                {result.scopeLabel && (
+                  <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+                    {result.scopeLabel}
+                  </span>
+                )}
+                {defaultScope?.companyStated && (
+                  <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+                    Company-stated
+                  </span>
+                )}
+              </div>
+            )}
+
+            {defaultScope && (
+              <p className="text-xs text-neutral max-w-sm px-2 leading-relaxed">
+                {defaultScope.note}
+              </p>
+            )}
+
+            {activity.citedEnergyWh && (
+              <p className="text-xs text-neutral max-w-sm px-2 leading-relaxed">
+                {aiEnergyNote()}
+              </p>
+            )}
+
+            {alternateScope && (
+              <div className="w-full max-w-sm px-2">
+                <button
+                  type="button"
+                  aria-expanded={showAlternateScope}
+                  onClick={() => setShowAlternateScope((open) => !open)}
+                  className="text-xs text-primary hover:underline font-medium"
+                >
+                  {showAlternateScope ? "Hide" : "Show"} electricity-inclusive
+                  range
+                </button>
+                {showAlternateScope && (
+                  <p className="text-xs text-neutral mt-2 leading-relaxed">
+                    <span className="font-medium text-foreground">
+                      {alternateScope.label}:
+                    </span>{" "}
+                    about{" "}
+                    {formatRangeMl(
+                      alternateScope.lowMlPerUnit * quantity,
+                      alternateScope.highMlPerUnit * quantity
+                    )}{" "}
+                    ml for this quantity. {alternateScope.note}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <WaterDrop
+              ml={result.citedRangeMl?.[1] ?? result.totalMl}
+              animate={pulse && impact === "low"}
+            />
 
             <p className="text-sm sm:text-base text-neutral max-w-xs px-2 leading-relaxed">
               That&apos;s roughly the same as{" "}

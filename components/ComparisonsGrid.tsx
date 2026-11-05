@@ -2,7 +2,7 @@
 
 import { activities } from "@/lib/activities";
 import { calculateWater } from "@/lib/calculate";
-import { formatMl } from "@/lib/format";
+import { formatResultMl } from "@/lib/format";
 import { getImpactBarWidth, getImpactColor, getImpactLevel } from "@/lib/impact";
 import { ActivityIcon } from "@/lib/icons";
 import { useMemo } from "react";
@@ -23,6 +23,8 @@ export function ComparisonsGrid({
       return {
         activity,
         ml: result.totalMl,
+        amountLabel: formatResultMl(result),
+        scopeLabel: result.scopeLabel,
         qty,
       };
     });
@@ -34,7 +36,7 @@ export function ComparisonsGrid({
     <section className="max-w-5xl mx-auto px-4 py-10 w-full min-w-0">
       <h2 className="text-xl font-bold mb-4">Activity Comparisons</h2>
       <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-3 lg:grid-cols-4 md:overflow-visible">
-        {items.map(({ activity, ml, qty }) => {
+        {items.map(({ activity, ml, amountLabel, scopeLabel, qty }) => {
           const level = getImpactLevel(ml);
           const isSelected = activity.id === selectedId;
           const unitLabel = qty === 1 ? activity.unit : activity.unitPlural;
@@ -58,9 +60,16 @@ export function ComparisonsGrid({
               <p className="text-xs text-neutral mb-2">
                 {qty} {unitLabel}
               </p>
-              <p className="text-lg font-bold text-primary mb-3">
-                {formatMl(ml)} ml
+              <p className="text-lg font-bold text-primary mb-1">
+                {amountLabel} ml
               </p>
+              {scopeLabel ? (
+                <p className="text-[11px] leading-tight text-neutral mb-2">
+                  {scopeLabel}
+                </p>
+              ) : (
+                <div className="mb-2" />
+              )}
               <div className="h-2 rounded-full bg-border overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${getImpactColor(level)}`}

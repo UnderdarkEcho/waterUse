@@ -1,5 +1,3 @@
-import { formatMl } from "./format";
-
 /** e.g. "breathing for 24 hours" or "10 queries of full chatgpt conversation" */
 export function formatShareActivityPhrase(
   activityName: string,
@@ -16,7 +14,7 @@ export function formatShareActivityPhrase(
 }
 
 export function buildShareTweetText(
-  totalMl: number,
+  amountMl: string,
   activityName: string,
   quantity: number,
   unit: string,
@@ -28,5 +26,5 @@ export function buildShareTweetText(
     unit,
     unitPlural
   );
-  return `I used ${formatMl(totalMl)} ml of water by ${phrase}! AI uses a few ml of water per query — and it's worth it. See the real numbers:`;
+  return `About ${amountMl} ml of water for ${phrase}.`;
 }

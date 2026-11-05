@@ -1,8 +1,13 @@
+import { GOLF_FACILITY_ML_PER_YEAR, SHOWER_ML_PER_MIN } from "./activities";
+
 export interface ComparisonItem {
   name: string;
   ml: number;
   emoji: string;
 }
+
+/** 5 × SHOWER_ML_PER_MIN. Derived from cmp-shower-minute-watersense, v0.1, EPA WaterSense. */
+export const FIVE_MIN_SHOWER_ML = 5 * SHOWER_ML_PER_MIN;
 
 const comparisons: ComparisonItem[] = [
   { name: "one hour of breathing", ml: 13, emoji: "🫁" },
@@ -25,11 +30,12 @@ const comparisons: ComparisonItem[] = [
   { name: "a half-gallon jug", ml: 1900, emoji: "🫗" },
   { name: "a gallon of water", ml: 3785, emoji: "🪣" },
   { name: "a toilet flush", ml: 6000, emoji: "🚽" },
-  { name: "a 5-minute shower", ml: 20000, emoji: "🚿" },
+  { name: "a 5-minute shower", ml: FIVE_MIN_SHOWER_ML, emoji: "🚿" },
   { name: "a washing machine load", ml: 227000, emoji: "👕" },
   { name: "30 minutes of lawn watering", ml: 227000, emoji: "🌱" },
   { name: "a cross-country flight", ml: 1200000, emoji: "✈️" },
-  { name: "an hour of golf course irrigation", ml: 473000000, emoji: "⛳" },
+  // cmp-golf-facility-year central. v0.1. GCSAA. Per year, not per hour.
+  { name: "a year of golf course irrigation", ml: GOLF_FACILITY_ML_PER_YEAR, emoji: "⛳" },
 ];
 
 export function getComparison(ml: number): string {
@@ -47,4 +53,12 @@ export function getComparison(ml: number): string {
   }
 
   return `${closest.emoji} ${closest.name}`;
+}
+
+/** Same phrase when both ends land on one comparison; otherwise both. */
+export function getComparisonSpan(low: number, high: number): string {
+  const a = getComparison(low);
+  const b = getComparison(high);
+  if (a === b) return a;
+  return `${a} to ${b}`;
 }

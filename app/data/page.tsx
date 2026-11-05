@@ -1,9 +1,17 @@
 import type { Metadata } from "next";
-import { activities } from "@/lib/activities";
+import {
+  activities,
+  AI_TEXT_ENERGY,
+  AI_TEXT_ENERGY_DISPLAY,
+  AI_TEXT_WATER,
+  GOLF_FACILITY_ML_PER_YEAR,
+  SHOWER_ML_PER_MIN,
+} from "@/lib/activities";
 import { getAppBuildFootprint } from "@/lib/app-footprint";
 import { AVERAGE_AI_QUERY } from "@/lib/definitions";
 import { calculateWater } from "@/lib/calculate";
-import { formatMl } from "@/lib/format";
+import { FIVE_MIN_SHOWER_ML } from "@/lib/comparisons";
+import { formatMl, formatRangeMl, formatResultMl } from "@/lib/format";
 import { ActivityIcon } from "@/lib/icons";
 import { sources } from "@/lib/sources";
 import Link from "next/link";
@@ -30,8 +38,9 @@ export default function DataPage() {
         <h1 className="text-3xl font-bold mb-2">Full Data Table</h1>
         <p className="text-neutral mb-8 max-w-2xl">
           All activity estimates with research sources. Default quantities shown.
-          Total water includes both direct (data center cooling) and indirect
-          (power generation) components.
+          AI text prompts show on-site cooling by default, with the
+          electricity-inclusive range listed separately. Other rows include
+          direct and indirect water where the source splits them.
         </p>
 
         <div className="mb-8 rounded-2xl border border-accent/30 bg-accent/5 p-6 space-y-3">
@@ -112,9 +121,20 @@ export default function DataPage() {
                   activity.defaultQuantity,
                   { includeIndirect: true }
                 );
-                const range = activity.rangeMl
-                  ? `${formatMl(activity.rangeMl[0])}–${formatMl(activity.rangeMl[1])}`
-                  : "—";
+                const range = activity.citedWater
+                  ? activity.citedWater.scopes
+                      .map(
+                        (scope) =>
+                          `${scope.label} ${formatRangeMl(
+                            scope.lowMlPerUnit * activity.defaultQuantity,
+                            scope.highMlPerUnit * activity.defaultQuantity
+                          )}`
+                      )
+                      .join("; ")
+                  : activity.rangeMl
+                    ? formatRangeMl(activity.rangeMl[0], activity.rangeMl[1])
+                    : "—";
+                const cited = Boolean(result.citedRangeMl);
 
                 return (
                   <tr
@@ -139,16 +159,41 @@ export default function DataPage() {
                         ? activity.unit
                         : activity.unitPlural}
                     </td>
-                    <td className="px-4 py-3 text-right font-medium text-primary whitespace-nowrap">
-                      {formatMl(result.totalMl)}
+                    <td className="px-4 py-3 text-right font-medium text-primary">
+                      {activity.citedWater && activity.citedWater.scopes.length > 1 ? (
+                        <span className="inline-block text-right">
+                          {activity.citedWater.scopes.map((scope) => (
+                            <span key={scope.scope} className="block mt-1 first:mt-0">
+                              <span className="block text-[11px] font-normal text-neutral">
+                                {scope.label}
+                              </span>
+                              {formatRangeMl(
+                                scope.lowMlPerUnit * activity.defaultQuantity,
+                                scope.highMlPerUnit * activity.defaultQuantity
+                              )}
+                            </span>
+                          ))}
+                        </span>
+                      ) : cited ? (
+                        <span>
+                          {formatResultMl(result)}
+                          {result.scopeLabel && (
+                            <span className="block text-[11px] font-normal text-neutral">
+                              {result.scopeLabel}
+                            </span>
+                          )}
+                        </span>
+                      ) : (
+                        formatMl(result.totalMl)
+                      )}
                     </td>
                     <td className="px-4 py-3 text-right hidden sm:table-cell whitespace-nowrap">
-                      {formatMl(result.directMl)}
+                      {cited ? "—" : formatMl(result.directMl)}
                     </td>
                     <td className="px-4 py-3 text-right hidden sm:table-cell whitespace-nowrap">
-                      {formatMl(result.indirectMl)}
+                      {cited ? "—" : formatMl(result.indirectMl)}
                     </td>
-                    <td className="px-4 py-3 hidden md:table-cell text-neutral whitespace-nowrap">
+                    <td className="px-4 py-3 hidden md:table-cell text-neutral">
                       {range}
                     </td>
                     <td className="px-4 py-3">
@@ -173,19 +218,45 @@ export default function DataPage() {
             Calculation methodology
           </h2>
           <p>
-            <strong className="text-foreground">Energy-based activities</strong>{" "}
-            (AI queries, emails) use: water (ml) = energy (Wh) × ml/Wh. Default
-            factors: 0.8 ml/Wh direct + 1.2 ml/Wh indirect = 2.0 ml/Wh total,
-            based on The Conversation and NREL thermoelectric water studies.
+            <strong className="text-foreground">AI text prompts</strong> use
+            cited ranges, not a single Wh × mL/Wh product. Energy is{" "}
+            {AI_TEXT_ENERGY_DISPLAY} per prompt (central {AI_TEXT_ENERGY.centralWh}{" "}
+            Wh, Epoch). Company-stated medians are {AI_TEXT_ENERGY.companyMedianLowWh}{" "}
+            Wh (Google) and {AI_TEXT_ENERGY.companyMedianHighWh} Wh (Altman). The
+            “2 Wh” end rounds The Conversation’s {AI_TEXT_ENERGY.upperContextWh} Wh
+            GPT-4o figure; 2 Wh is not its own record. On-site cooling is about{" "}
+            {formatRangeMl(
+              AI_TEXT_WATER.scopes[0].lowMlPerUnit,
+              AI_TEXT_WATER.scopes[0].highMlPerUnit
+            )}{" "}
+            mL (Google / Altman, company-stated). Electricity-inclusive is about{" "}
+            {formatRangeMl(
+              AI_TEXT_WATER.scopes[1].lowMlPerUnit,
+              AI_TEXT_WATER.scopes[1].highMlPerUnit
+            )}{" "}
+            mL (Li et al. 2023, GPT-3-class, older). Those scopes are not added.
+            Sending a plain email still uses an older unverified energy estimate.
           </p>
           <p>
-            <strong className="text-foreground">Streaming &amp; communication</strong>{" "}
-            use per-hour estimates from Obringer et al. (2021), split ~40%
-            direct / 60% indirect.
+            <strong className="text-foreground">Streaming</strong> per-service
+            rates (Netflix, YouTube, music, social video, web browsing) are
+            left as previously published and marked unverified. Video calls use
+            the Purdue/Obringer range of 2,000–12,000 mL per hour
+            (electricity-inclusive).
           </p>
           <p>
             <strong className="text-foreground">Physical activities</strong> use
-            EPA WaterSense benchmarks for direct household water.
+            EPA WaterSense benchmarks for direct household water. Shower rate
+            is the WaterSense maximum, 2.0 gallons per minute (
+            {SHOWER_ML_PER_MIN.toLocaleString()} mL/min). A 5-minute shower
+            comparison is 5 × that rate ({FIVE_MIN_SHOWER_ML.toLocaleString()}{" "}
+            mL), from the shower activity and EPA WaterSense. Golf is the GCSAA
+            Phase 4 median for 2024,{" "}
+            {(GOLF_FACILITY_ML_PER_YEAR / 1_000_000_000).toLocaleString()} billion
+            mL per facility per year (
+            {(GOLF_FACILITY_ML_PER_YEAR / 1_000_000_000).toLocaleString()} million
+            liters). Averaged over the year, the data-file note states about
+            9,700 liters per hour.
           </p>
           <p>
             <strong className="text-foreground">Food &amp; drink</strong> use
