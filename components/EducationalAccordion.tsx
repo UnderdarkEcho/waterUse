@@ -1,9 +1,14 @@
 "use client";
 
 import { Cite, SourceList } from "./Citation";
-import { activities } from "@/lib/activities";
+import {
+  activities,
+  AI_TEXT_ENERGY,
+  AI_TEXT_ENERGY_DISPLAY,
+  AI_TEXT_WATER,
+} from "@/lib/activities";
 import { calculateWater } from "@/lib/calculate";
-import { formatMl } from "@/lib/format";
+import { formatMl, formatRangeMl, formatResultMl } from "@/lib/format";
 import { roundPct } from "@/lib/impact";
 import { AVERAGE_AI_QUERY } from "@/lib/definitions";
 import { getSource } from "@/lib/sources";
@@ -37,7 +42,8 @@ export function EducationalAccordion({
     const browseResult = calculateWater(browse, 1, { includeIndirect });
     const lawnResult = calculateWater(lawn, 30, { includeIndirect });
     return {
-      ai: aiResult.totalMl,
+      aiLabel: formatResultMl(aiResult),
+      aiBar: aiResult.totalMl,
       browse: browseResult.totalMl,
       lawn: lawnResult.totalMl,
     };
@@ -100,12 +106,19 @@ export function EducationalAccordion({
             </Cite>{" "}
             puts it plainly: AI is already the backbone of scientific
             breakthroughs, business growth, and approaches to global challenges
-            including climate adaptation. A few milliliters of water per query is
-            a tiny price for that leverage — especially as{" "}
-            <Cite href={getSource("google-gemini")!.url}>
-              Google&apos;s latest systems
-            </Cite>{" "}
-            show efficiency improving fast.
+            including climate adaptation. On-site cooling for one text prompt is
+            about {formatRangeMl(AI_TEXT_WATER.scopes[0].lowMlPerUnit, AI_TEXT_WATER.scopes[0].highMlPerUnit)} mL (
+            <Cite href={getSource("google-gemini")!.url}>Google</Cite>,
+            company-stated; Altman {AI_TEXT_WATER.scopes[0].highMlPerUnit} mL,
+            company-stated). An electricity-inclusive figure for older
+            GPT-3-class models is about{" "}
+            {formatRangeMl(
+              AI_TEXT_WATER.scopes[1].lowMlPerUnit,
+              AI_TEXT_WATER.scopes[1].highMlPerUnit
+            )}{" "}
+            mL (
+            <Cite href={getSource("li-2023")!.url}>Li et al. 2023</Cite>
+            ). Those scopes are not added together.
           </p>
         </div>
       ),
@@ -167,15 +180,19 @@ export function EducationalAccordion({
       content: (
         <div className="space-y-3 text-neutral leading-relaxed">
           <p>
-            Transparency matters — but perspective matters too. Ten AI queries
-            use about{" "}
+            Ten AI queries use about{" "}
             <strong className="text-foreground">
-              {formatMl(aiVsTraditional.ai)} ml
+              {aiVsTraditional.aiLabel} ml
             </strong>{" "}
-            of water here. That is less than one hour of web browsing (
-            {formatMl(aiVsTraditional.browse)} ml), and a fraction of watering
-            your lawn for 30 minutes (
-            {formatMl(aiVsTraditional.lawn)} ml).{" "}
+            of on-site cooling water. That is less than one hour of web browsing
+            ({formatMl(aiVsTraditional.browse)} ml), and a fraction of watering
+            your lawn for 30 minutes ({formatMl(aiVsTraditional.lawn)} ml). The
+            electricity-inclusive range for those 10 prompts is about{" "}
+            {formatRangeMl(
+              AI_TEXT_WATER.scopes[1].lowMlPerUnit * 10,
+              AI_TEXT_WATER.scopes[1].highMlPerUnit * 10
+            )}{" "}
+            ml and is not included in the on-site figure.{" "}
             <Cite href={getSource("conversation-2025")!.url}>
               The Conversation
             </Cite>{" "}
@@ -239,18 +256,27 @@ export function EducationalAccordion({
       content: (
         <div className="space-y-4 text-neutral leading-relaxed">
           <p>
-            Digital activities use:{" "}
-            <code className="text-sm bg-border/50 px-1.5 py-0.5 rounded">
-              water (ml) = energy (Wh) × ml/Wh
-            </code>{" "}
-            per{" "}
+            AI text prompts use cited ranges: {AI_TEXT_ENERGY_DISPLAY}, on-site
+            cooling about{" "}
+            {formatRangeMl(
+              AI_TEXT_WATER.scopes[0].lowMlPerUnit,
+              AI_TEXT_WATER.scopes[0].highMlPerUnit
+            )}{" "}
+            mL, and electricity-inclusive about{" "}
+            {formatRangeMl(
+              AI_TEXT_WATER.scopes[1].lowMlPerUnit,
+              AI_TEXT_WATER.scopes[1].highMlPerUnit
+            )}{" "}
+            mL (
+            <Cite href={getSource("li-2023")!.url}>Li et al. 2023</Cite>,
+            GPT-3-class, older). Those water scopes are not added. The high end,{" "}
+            {AI_TEXT_ENERGY.upperContextWh} Wh, is{" "}
             <Cite href={getSource("conversation-2025")!.url}>
               The Conversation
-            </Cite>{" "}
-            (1.3–2.0 ml/Wh). Direct cooling and power-plant water are split per{" "}
-            <Cite href={getSource("li-2023")!.url}>
-              Li et al.
             </Cite>
+            ’s GPT-4o figure (record ai-text-energy-conversation-gpt4o). Sending a plain
+            email still uses an older energy × mL/Wh estimate that this data
+            file does not rate.
           </p>
           <SourceList
             ids={[
@@ -261,6 +287,8 @@ export function EducationalAccordion({
               "eesi-dc",
               "wri-consumption",
               "google-gemini",
+              "epoch-ai",
+              "altman-openai",
               "stanford-ai-index",
               "oecd-productivity",
               "wharton-productivity",
@@ -268,10 +296,11 @@ export function EducationalAccordion({
               "ncbi-ai-health",
               "royal-society",
               "epa-watersense",
+              "epa-showerheads",
               "epa-outdoor",
               "water-calc-gas",
               "wfn-transport",
-              "usga-golf",
+              "gcsaa-golf",
               "wfn-coffee",
               "wfn-animal",
               "wfn-crops",
@@ -293,7 +322,9 @@ export function EducationalAccordion({
               <p className="font-medium">Include indirect water</p>
               <p className="text-sm text-neutral">
                 Add power-plant water used to generate electricity (
-                <Cite href={getSource("li-2023")!.url}>scope-2</Cite>)
+                <Cite href={getSource("li-2023")!.url}>scope-2</Cite>
+                ). This switch does not change AI text prompts. Those use the
+                on-site and electricity-inclusive ranges on the result.
               </p>
             </div>
             <button
@@ -344,14 +375,14 @@ export function EducationalAccordion({
                 <div className="flex justify-between text-sm">
                   <span>10 AI queries</span>
                   <span className="font-medium text-primary">
-                    {formatMl(aiVsTraditional.ai)} ml
+                    {aiVsTraditional.aiLabel} ml
                   </span>
                 </div>
                 <div className="h-2 rounded-full bg-border overflow-hidden">
                   <div
                     className="h-full bg-primary rounded-full"
                     style={{
-                      width: `${roundPct(Math.min(100, (aiVsTraditional.ai / Math.max(aiVsTraditional.ai, aiVsTraditional.browse)) * 100))}%`,
+                      width: `${roundPct(Math.min(100, (aiVsTraditional.aiBar / Math.max(aiVsTraditional.aiBar, aiVsTraditional.browse)) * 100))}%`,
                     }}
                   />
                 </div>
@@ -367,7 +398,7 @@ export function EducationalAccordion({
                   <div
                     className="h-full bg-accent rounded-full"
                     style={{
-                      width: `${roundPct(Math.min(100, (aiVsTraditional.browse / Math.max(aiVsTraditional.ai, aiVsTraditional.browse)) * 100))}%`,
+                      width: `${roundPct(Math.min(100, (aiVsTraditional.browse / Math.max(aiVsTraditional.aiBar, aiVsTraditional.browse)) * 100))}%`,
                     }}
                   />
                 </div>

@@ -11,7 +11,8 @@ import { SiteFooter } from "./SiteFooter";
 import { useTheme } from "./ThemeProvider";
 import { activities, getActivity } from "@/lib/activities";
 import { calculateWater } from "@/lib/calculate";
-import { getComparison } from "@/lib/comparisons";
+import { getComparison, getComparisonSpan } from "@/lib/comparisons";
+import { formatResultMl } from "@/lib/format";
 import { buildShareTweetText } from "@/lib/share-text";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -43,23 +44,25 @@ export function HomePage() {
     [activity, quantity, includeIndirect]
   );
 
-  const comparison = useMemo(
-    () => getComparison(result.totalMl),
-    [result.totalMl]
-  );
+  const comparison = useMemo(() => {
+    if (result.citedRangeMl) {
+      return getComparisonSpan(result.citedRangeMl[0], result.citedRangeMl[1]);
+    }
+    return getComparison(result.totalMl);
+  }, [result]);
 
   const unitLabel = quantity === 1 ? activity.unit : activity.unitPlural;
 
   const shareTweetText = useMemo(
     () =>
       buildShareTweetText(
-        result.totalMl,
+        formatResultMl(result),
         activity.name,
         quantity,
         activity.unit,
         activity.unitPlural
       ),
-    [result.totalMl, activity, quantity]
+    [result, activity, quantity]
   );
 
   return (
@@ -94,7 +97,7 @@ export function HomePage() {
 
       <ShareExportCard
         ref={shareCardRef}
-        totalMl={result.totalMl}
+        amountLabel={formatResultMl(result)}
         activityName={activity.name}
         quantity={quantity}
         unitLabel={unitLabel}
